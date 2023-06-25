@@ -34,7 +34,7 @@ class Sparksetup():
             print("Data inserted...")
         except Exception as e:
             print("Connection failed....{}".format(e))
-
+# create a object of class Sparksetup
 sprk=Sparksetup()
 
 
