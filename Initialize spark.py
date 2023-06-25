@@ -18,6 +18,7 @@ class Sparksetup():
         self.table_name='orgdata'
         self.df=self.spark.read.option('header',True).option('inferschema',True).csv("D:\Databricks\src\orgdata.csv")
         self.df.show()
+        self.df=self.df.drop("Index")
         self.df=self.df.toPandas()
         # Function call to write to SQL server
         self.sqlsetup()
