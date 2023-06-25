@@ -10,7 +10,7 @@ class Sparksetup():
         self.spark=SparkSession.builder.master('local[5]')\
              .appName('local')\
              .getOrCreate()
-        
+        # Function to read the files
         self.read_file()
         
         
@@ -19,6 +19,7 @@ class Sparksetup():
         self.df=self.spark.read.option('header',True).option('inferschema',True).csv("D:\Databricks\src\orgdata.csv")
         self.df.show()
         self.df=self.df.toPandas()
+        # Function call to write to SQL server
         self.sqlsetup()
 
     
