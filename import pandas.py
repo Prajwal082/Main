@@ -1,4 +1,4 @@
-class Stockmarket:
+ class Stockmarket:
 
     def __init__(self, api_key,client_ID,password,totp) -> None:
         from smartapi import SmartConnect
