@@ -1,19 +1,20 @@
-class Triangle:  
-  def __init__(self,b,h):
-    self.base = b
-    self.height = h
+import os,sys
+import datetime
+import pandas as pd
+# import Initializespark as sp
+# spk=sp.Sparksetup()
+# spark=spk.spark_session()
 
-  def __str__(self) -> str:
-    return '{},{}'.format(self.base,self.height)
+dir= os.listdir("D:\Databricks\SRC\Delivery_data")
 
-  def trianglearea(self):
-    return self.base * self.height *0.5
+for files in dir:
 
-  def addnum(self):
-    pass
+    timestamp=os.path.getmtime(f"D:\Databricks\SRC\Delivery_data/{files}")
+    modifiedtime=datetime.datetime.fromtimestamp(timestamp)
+    print(files,modifiedtime)
+ct = datetime.datetime.now()
+print(ct)
+# df=spark.read.format('csv').option('header',True).option('sep',',').option('inferschema',True).load("D:\Databricks\SRC\Delivery_data/12-05-2023-TO-12-08-2023-AMARAJABAT-ALL-N.csv")
+# df.show()
 
 
-ob = Triangle(2,2)
-# print(ob)
-ob.trianglearea()
-# print(ob.addsum())
