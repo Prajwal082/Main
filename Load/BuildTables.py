@@ -1,5 +1,7 @@
 # >>>>USE Initializespark MODULE TO IMPORT AND SETUP SPARK<<<<
 import logging
+import sys
+sys.path.append("d:\\Databricks\\Vsprojects\\")
 from  config.Initializespark import Sparksetup
 Log_format='[%(asctime)s] : [%(lineno)s] : [%(levelname)s] : %(message)s'
 level = logging.INFO
@@ -13,9 +15,11 @@ class Buildtables(Sparksetup):
 
     def __init__(self) -> None:
         self.Logger.info("Setting up Spark...!\n")
-        self.spark =super().config()
+        self.spark =super().create_spark()
         self.Logger.info("Spark setup Done...!\n")
         self.schema=self.tableschema()
+
+    def launchBronze(self):
         self.list_dir()
         self.jdbc_read()
 
@@ -32,10 +36,10 @@ class Buildtables(Sparksetup):
         StructField('Last_Price',DecimalType(),False),
         StructField('Close_Price',DecimalType(),False),
         StructField('Average_Price',DecimalType(),False),
-        StructField('Total_Traded_Quantity',IntegerType(),False),
-        StructField('Turnover',IntegerType(),False),
-        StructField('No_of_Trades',IntegerType(),False),
-        StructField('Deliverable_Qty',IntegerType(),False),
+        StructField('Total_Traded_Quantity',DecimalType(),False),
+        StructField('Turnover',DecimalType(),False),
+        StructField('No_of_Trades',DecimalType(),False),
+        StructField('Deliverable_Qty',DecimalType(),False),
         StructField('Percentage_DlyQt_to_TradedQty',DecimalType(),False)
         ]) '''
         return schema
@@ -53,7 +57,7 @@ class Buildtables(Sparksetup):
     def pandas_sqlsetup(self):
         from sqlalchemy import create_engine
         import pyodbc
-        engine = create_engine('mssql+pyodbc://prajwal:456@DESKTOP-0A2HT13/Databricks?driver=ODBC Driver 17 for SQL Server')
+        engine = create_engine('mssql+pyodbc://prajwal:789@DESKTOP-0A2HT13/Databricks?driver=ODBC Driver 17 for SQL Server')
         try:
             conn=engine.connect()
             self.Logger.info("Connection Sucessfull...")
@@ -71,7 +75,7 @@ class Buildtables(Sparksetup):
                                 .option("url", "jdbc:sqlserver://DESKTOP-0A2HT13;databaseName=Databricks;")\
                                 .option("dbtable", "dbo.file_list")\
                                 .option("user", "prajwal")\
-                                .option("password", 456)\
+                                .option("password", 789)\
                                 .load()
         except Exception as e:
             print(e)
@@ -87,7 +91,7 @@ class Buildtables(Sparksetup):
                                 .option("url", "jdbc:sqlserver://DESKTOP-0A2HT13;databaseName=Databricks;")\
                                 .option("dbtable", self.name)\
                                 .option("user", "prajwal")\
-                                .option("password", 456)\
+                                .option("password", 789)\
                                 .mode('overwrite')\
                                 .save()
             self.Logger.info(f"Data inserted to SSMS table for {self.name}\n")
@@ -119,7 +123,9 @@ class Buildtables(Sparksetup):
             path=f"D:\Databricks\SRC\Delivery_data/{item[0]}"
             self.read_file(path,name)
 
-Buildtables()
+Bronze = Buildtables()
+
+Bronze.launchBronze()
 
 
 
