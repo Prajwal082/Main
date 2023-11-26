@@ -59,10 +59,14 @@ class Gold(Utils):
         self.__truncate_GoldTables()
         self.construct_gold(lst)
 
-lst =['dbo.RAJESHEXPO','dbo.INFY','dbo.ATGL','dbo.JPPOWER','dbo.AREM','dbo.HDFCBANK','dbo.SURYODAY','dbo.SHYAMCENT']
-gold_obj = Gold()
 
-gold_obj.launchGold(lst)
+if __name__ == "__main__":
+
+    lst =['dbo.RAJESHEXPO','dbo.INFY','dbo.ATGL','dbo.JPPOWER','dbo.AREM','dbo.HDFCBANK','dbo.SURYODAY','dbo.SHYAMCENT']
+    
+    gold_obj = Gold()
+
+    gold_obj.launchGold(lst)
 
 
 

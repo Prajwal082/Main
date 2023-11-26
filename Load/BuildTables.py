@@ -132,9 +132,11 @@ class Buildtables(Utils):
         self.list_dir()
         self.jdbc_read()
 
-Bronze = Buildtables()
+if __name__ == "__main__":
+    
+    Bronze = Buildtables()
 
-Bronze.launchBronze()
+    Bronze.launchBronze()
 
 
 

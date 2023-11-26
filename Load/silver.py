@@ -84,10 +84,13 @@ class Silvertransformation(Utils):
             self.Logger.info(e)
 
 
-obj=Silvertransformation()
-# print(obj.url)
-lst =['dbo.RAJESHEXPO','dbo.INFY','dbo.ATGL','dbo.JPPOWER','dbo.AREM','dbo.HDFCBANK','dbo.SURYODAY','dbo.SHYAMCENT']
-for item in lst:
-    obj.transform_tables(item)
+if __name__ == "__main__":
+    
+    obj=Silvertransformation()
+
+    lst =['dbo.RAJESHEXPO','dbo.INFY','dbo.ATGL','dbo.JPPOWER','dbo.AREM','dbo.HDFCBANK','dbo.SURYODAY','dbo.SHYAMCENT']
+
+    for item in lst:
+        obj.transform_tables(item)
 
 
