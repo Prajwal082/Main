@@ -1,23 +1,22 @@
 # >>>>USE Initializespark MODULE TO IMPORT AND SETUP SPARK<<<<
-import logging
+import sys
+sys.path.append("d:\\Databricks\\Vsprojects\\")
 from  config.Initializespark import Sparksetup
-Log_format='[%(asctime)s] : [%(lineno)s] : [%(levelname)s] : %(message)s'
-level = logging.INFO
-logging.basicConfig(level=level,format=Log_format)
+from Utils.Stockutils import Utils
 
-class Buildtables(Sparksetup):
+class Buildtables(Utils):
     
-    Logger=logging.getLogger()  
-    logging.getLogger("py4j").setLevel(logging.INFO)
-    Logger.info("Process started \n")
 
     def __init__(self) -> None:
+        super().__init__()
+        
         self.Logger.info("Setting up Spark...!\n")
-        self.spark =super().config()
+        self.spark = Sparksetup.create_spark(self)
         self.Logger.info("Spark setup Done...!\n")
-        self.schema=self.tableschema()
-        self.list_dir()
-        self.jdbc_read()
+
+        self.schema = self.tableschema()
+
+        self._initconfigs()
 
     def tableschema(self):
         from pyspark.sql.types import ArrayType, StructField, StructType, StringType, IntegerType, DecimalType,TimestampType,DateType
@@ -32,13 +31,23 @@ class Buildtables(Sparksetup):
         StructField('Last_Price',DecimalType(),False),
         StructField('Close_Price',DecimalType(),False),
         StructField('Average_Price',DecimalType(),False),
-        StructField('Total_Traded_Quantity',IntegerType(),False),
-        StructField('Turnover',IntegerType(),False),
-        StructField('No_of_Trades',IntegerType(),False),
-        StructField('Deliverable_Qty',IntegerType(),False),
+        StructField('Total_Traded_Quantity',DecimalType(),False),
+        StructField('Turnover',DecimalType(),False),
+        StructField('No_of_Trades',DecimalType(),False),
+        StructField('Deliverable_Qty',DecimalType(),False),
         StructField('Percentage_DlyQt_to_TradedQty',DecimalType(),False)
         ]) '''
         return schema
+    
+    def _initconfigs(self):
+        self.driver = self.get_leafconfig(self.config_data,"ssms.cred.driver")
+        url = self.get_leafconfig(self.config_data,"ssms.cred.url")
+        self.url = url.format(Database= "Databricks")
+        self.user = self.get_leafconfig(self.config_data,"ssms.cred.user")
+        self.password = self.get_leafconfig(self.config_data,"ssms.cred.password")
+        pyodbc = self.get_leafconfig(self.config_data,"ssms.pyodbc")
+        self.pyodbc = pyodbc.format(user=self.user,password=self.password,Database="Databricks")
+        self.dbtable = self.get_leafconfig(self.config_data,"ssms.dbtable")
     
     def read_file(self,path,name):
         from pyspark.sql.types import ArrayType, StructField, StructType, StringType, IntegerType, DecimalType,TimestampType,DateType
@@ -53,7 +62,7 @@ class Buildtables(Sparksetup):
     def pandas_sqlsetup(self):
         from sqlalchemy import create_engine
         import pyodbc
-        engine = create_engine('mssql+pyodbc://prajwal:456@DESKTOP-0A2HT13/Databricks?driver=ODBC Driver 17 for SQL Server')
+        engine = create_engine(self.pyodbc)
         try:
             conn=engine.connect()
             self.Logger.info("Connection Sucessfull...")
@@ -67,11 +76,11 @@ class Buildtables(Sparksetup):
         try:
             self.file_listdf = self.spark.read\
                                 .format("jdbc")\
-                                .option("driver","com.microsoft.sqlserver.jdbc.SQLServerDriver")\
-                                .option("url", "jdbc:sqlserver://DESKTOP-0A2HT13;databaseName=Databricks;")\
-                                .option("dbtable", "dbo.file_list")\
-                                .option("user", "prajwal")\
-                                .option("password", 456)\
+                                .option("driver",self.driver)\
+                                .option("url", self.url)\
+                                .option("dbtable", self.dbtable)\
+                                .option("user", self.user)\
+                                .option("password", self.password)\
                                 .load()
         except Exception as e:
             print(e)
@@ -83,11 +92,11 @@ class Buildtables(Sparksetup):
         try:
             self.file_listdf = self.df.write\
                                 .format("jdbc")\
-                                .option("driver","com.microsoft.sqlserver.jdbc.SQLServerDriver")\
-                                .option("url", "jdbc:sqlserver://DESKTOP-0A2HT13;databaseName=Databricks;")\
+                                .option("driver",self.driver)\
+                                .option("url", self.url)\
                                 .option("dbtable", self.name)\
-                                .option("user", "prajwal")\
-                                .option("password", 456)\
+                                .option("user", self.user)\
+                                .option("password", self.password)\
                                 .mode('overwrite')\
                                 .save()
             self.Logger.info(f"Data inserted to SSMS table for {self.name}\n")
@@ -99,16 +108,16 @@ class Buildtables(Sparksetup):
         import os,sys
         import datetime
         self.table_name='file_list'
-        self.dir= os.listdir("D:\Databricks\SRC\Delivery_data")
+        self.dir= os.listdir("D:\\Databricks\\SRC\\Delivery_data")
         ct = datetime.datetime.now()
-        self.Logger.info("Directory List done...!\n")
         lst=[]
         for files in self.dir:
             name=files.split('-')[7:8]
-            timestamp=os.path.getmtime(f"D:\Databricks\SRC\Delivery_data/{files}")
+            timestamp=os.path.getmtime(f"D:\\Databricks\\SRC\\Delivery_data/{files}")
             modifiedtime=datetime.datetime.fromtimestamp(timestamp)
             case={'file_name':files,'d_update':modifiedtime,'enabled':1}
             lst.append(case)
+        self.Logger.info("Directory List done...!\n")
         self.df = pd.DataFrame(lst)
         self.pandas_sqlsetup()
 
@@ -119,7 +128,13 @@ class Buildtables(Sparksetup):
             path=f"D:\Databricks\SRC\Delivery_data/{item[0]}"
             self.read_file(path,name)
 
-Buildtables()
+    def launchBronze(self):
+        self.list_dir()
+        self.jdbc_read()
+
+Bronze = Buildtables()
+
+Bronze.launchBronze()
 
 
 

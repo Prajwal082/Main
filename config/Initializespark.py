@@ -6,7 +6,7 @@ import pandas
 
 class Sparksetup():
 
-    def config(self):
+    def create_spark(self):
         self.spark=SparkSession.builder.master('local[5]')\
                 .appName('local')\
                 .config('spark.driver.extraClassPath', "C:\spark\jars\sqljdbc_4.2\enu\jre8\sqljdbc42.jar")\

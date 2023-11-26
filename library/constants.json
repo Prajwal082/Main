@@ -1,0 +1,18 @@
+{
+    "ssms" : {
+        "cred" : {
+            "driver" : "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+            "url" : "jdbc:sqlserver://DESKTOP-0A2HT13;databaseName={Database};",
+            "user" : "prajwal",
+            "password" : 789
+        },
+
+        "dbtable" : "dbo.file_list",
+        "pyodbc" : "mssql+pyodbc://{user}:{password}@DESKTOP-0A2HT13/{Database}?driver=ODBC Driver 17 for SQL Server"
+    },
+
+    "directory" : {
+        "src" : "D:\\Databricks\\SRC\\Delivery_data",
+        "syspath" : "d:\\Databricks\\Vsprojects\\"
+    }
+}
