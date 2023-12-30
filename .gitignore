@@ -1,0 +1,8 @@
+Airflow/
+dags/
+logs/
+Test/
+plugins/
+miscellaneous/
+project/
+docker-compose.yaml

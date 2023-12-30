@@ -1,5 +1,7 @@
 # >>>>USE Initializespark MODULE TO IMPORT AND SETUP SPARK<<<<
-import sys
+import pandas as pd
+import os,sys
+import datetime
 sys.path.append("d:\\Databricks\\Vsprojects\\")
 from  config.Initializespark import Sparksetup
 from Utils.Stockutils import Utils
@@ -51,7 +53,6 @@ class Buildtables(Utils):
     
     def read_file(self,path,name):
         from pyspark.sql.types import ArrayType, StructField, StructType, StringType, IntegerType, DecimalType,TimestampType,DateType
-        import datetime
         self.table_name=name
         self.path=path
         self.Logger.info(msg=f"Reading file from location: {path}")
@@ -104,9 +105,6 @@ class Buildtables(Utils):
             print(e)
 
     def list_dir(self):
-        import pandas as pd
-        import os,sys
-        import datetime
         self.table_name='file_list'
         self.dir= os.listdir("D:\\Databricks\\SRC\\Delivery_data")
         ct = datetime.datetime.now()
@@ -115,7 +113,7 @@ class Buildtables(Utils):
             name=files.split('-')[7:8]
             timestamp=os.path.getmtime(f"D:\\Databricks\\SRC\\Delivery_data/{files}")
             modifiedtime=datetime.datetime.fromtimestamp(timestamp)
-            case={'file_name':files,'d_update':modifiedtime,'enabled':1}
+            case={'file_name':files,'table':name[0],'d_update':modifiedtime,'enabled':1}
             lst.append(case)
         self.Logger.info("Directory List done...!\n")
         self.df = pd.DataFrame(lst)
