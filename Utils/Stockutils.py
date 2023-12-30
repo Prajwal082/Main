@@ -62,3 +62,24 @@ class Utils():
         finally:
             # Close the database connection
             connection.close()
+
+    def fetch_tablestoLoad(self,url:str,driver:str,user:str,password:str) ->list:
+
+        url = url.format(Database= "Databricks")
+        self.Logger.info("Fetching tables to load ")
+
+        options =  {"driver":driver,
+                    "url":url,
+                    "dbtable":"dbo.file_list",
+                    "user": user,
+                    "password":password}
+        
+        df = self.spark.read\
+            .format("jdbc")\
+            .options(**options)\
+            .load()
+        
+        list_ofTables = df.select('table').collect()
+        assert not len(list_ofTables) == 0 , "List cannot be empty"
+
+        return list_ofTables

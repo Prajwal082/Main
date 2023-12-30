@@ -22,38 +22,10 @@ sys.path.append("d:\\Databricks\\Vsprojects\\")
 from config.Initializespark import Sparksetup
 # from Utils.Stockutils import Utils
 
-# obj=Sparksetup()
-# spark=obj.create_spark()
-url ="jdbc:sqlserver://DESKTOP-0A2HT13;databaseName=gold;"
-
+obj=Sparksetup()
+spark=obj.create_spark()
+from pyspark.sql.functions import current_date,month
+from pyspark.sql.types import *
 # DriverManager = spark._sc._gateway.jvm.java.sql.DriverManager
-import findspark
-findspark.init()
-from pyspark.sql import SparkSession
-from delta import * 
 
-# spark=SparkSession.builder.master('local[5]')\
-#                 .appName('local')\
-#                 .config('spark.driver.extraClassPath', "C:\spark\jars\sqljdbc_4.2\enu\jre8\sqljdbc42.jar")\
-#                 .config('spark.executor.extraClassPath', "C:\spark\jars\sqljdbc_4.2\enu\jre8\sqljdbc42.jar")\
-#                 .getOrCreate()
-#         spark.conf.set("spark.sql.legacy.setCommandRejectsSparkCoreConfs","false")
-#         spark.conf.set('spark.driver.cores',4)
-#         spark.conf.set('spark.driver.executor',4)
-#         spark.conf.set('spark.driver.executor',8)
-#         spark.conf.set('spark.driver.memory','56g')
-#         spark.conf.set('spark.executor.memory','56g')
-#         spark.conf.set("spark.eventLog.enabled",True)
-#         # spark.conf.set("spark.jars.packages", "io.delta:delta-core_2.12:0.8.0") 
-#         # # spark.conf.set("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") 
-#         # spark.conf.set("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
-# 
-
-import pyspark
-from delta import *
-
-builder = pyspark.sql.SparkSession.builder.appName("MyApp") \
-    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
-    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
-
-spark = configure_spark_with_delta_pip(builder).getOrCreate() 
+# .withColumn("Avg_Change",df_new["Percentage_DlyQt_to_TradedQty"].sum())

@@ -4,7 +4,7 @@
             "driver" : "com.microsoft.sqlserver.jdbc.SQLServerDriver",
             "url" : "jdbc:sqlserver://DESKTOP-0A2HT13;databaseName={Database};",
             "user" : "prajwal",
-            "password" : 789
+            "password" : 123
         },
 
         "dbtable" : "dbo.file_list",

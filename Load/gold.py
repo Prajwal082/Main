@@ -16,6 +16,7 @@ class Gold(Utils):
         self.Logger.info("Spark setup Done...!\n")
 
         self._initconfigs()
+        self.list_ofTables = self.fetch_tablestoLoad(url=self.__url,user=self.__user,password=self.__password,driver=self.__driver)
 
 
     def _initconfigs(self):
@@ -27,14 +28,16 @@ class Gold(Utils):
         self.__pyodbc = pyodbc.format(user = self.__user,password = self.__password,Database='gold')
 
     def __truncate_GoldTables(self):
+        self.Logger.info("Truncate gold table..")
         self.truncate_table_sql_server(table_name='Stockdata',pyodbc=self.__pyodbc)
-
 
     def construct_gold(self,lst:list):
         silver_url  = self.__url.format(Database= "silver")
         gold_url = self.__url.format(Database= "gold")
 
         for item in lst:
+            self.Logger.info(f"reading {item}")
+
             df = self.spark.read\
                     .format("jdbc")\
                     .option("driver",self.__driver)\
@@ -55,14 +58,16 @@ class Gold(Utils):
                 .mode('append')\
                 .save()
             
-    def launchGold(self,lst:list) -> None:
+    def launchGold(self) -> None:
         self.__truncate_GoldTables()
-        self.construct_gold(lst)
+        result = list(map(self.construct_gold,self.list_ofTables))
 
-lst =['dbo.RAJESHEXPO','dbo.INFY','dbo.ATGL','dbo.JPPOWER','dbo.AREM','dbo.HDFCBANK','dbo.SURYODAY','dbo.SHYAMCENT']
-gold_obj = Gold()
 
-gold_obj.launchGold(lst)
+if __name__ == "__main__":
+
+    gold_obj = Gold()
+
+    gold_obj.launchGold()
 
 
 

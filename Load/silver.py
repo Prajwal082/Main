@@ -15,6 +15,8 @@ class Silvertransformation(Utils):
         self.Logger.info("Spark setup Done...!\n")
 
         self._initconfigs()
+        self.list_ofTables =  self.fetch_tablestoLoad(url=self.url,user=self.user,password=self.password,driver=self.driver)
+
         
     def _initconfigs(self):
         self.driver = self.get_leafconfig(self.config_data,"ssms.cred.driver")
@@ -24,6 +26,7 @@ class Silvertransformation(Utils):
     @property
     def url(self):
         return self.get_leafconfig(self.config_data,"ssms.cred.url")
+    
 
     def readsql_tables(self) -> DataFrame:
         url = self.url.format(Database= "Databricks")
@@ -44,24 +47,25 @@ class Silvertransformation(Utils):
     
     def transform_tables(self,table_name:str) -> DataFrame:
 
-        self.table_name = table_name
+        self.table_name = f'dbo.{table_name[0]}'
 
         df=self.readsql_tables()
 
         self.Logger.info("Transforming Data..")
 
-        self.df_new = df.withColumn("Day",f.split(col("Date"),'\-').getItem(0))\
+        df_new = df.withColumn("Day",f.split(col("Date"),'\-').getItem(0))\
                    .withColumn("Month",f.split(col("Date"),'\-').getItem(1))\
                    .withColumn("Year",f.split(col("Date"),'\-').getItem(2))
         
-        self.df_new = self.df_new.withColumn("Monthnumber",date_format(to_date(col('Month'), 'MMM'), 'MM'))\
+        df_new = df_new.withColumn("Monthnumber",date_format(to_date(col('Month'), 'MMM'), 'MM'))\
                .withColumn("date_int",concat("Year","Monthnumber","Day"))\
+               .withColumn("Last_Known",when(col("Monthnumber") == month(current_date()),True).otherwise(False))\
                .withColumn("Script_ID",concat("Symbol","Monthnumber","Day"))\
-               .withColumn("Percentage_DlyQt_to_TradedQty",concat("Percentage_DlyQt_to_TradedQty",f.lit('%')))\
                .withColumnRenamed('Symbol','Scriptname')\
                .drop("Year","Monthnumber","Month","Day","Series","Date")
-        
-        self.df_new = self.df_new.select([self.df_new.columns[-1]] + self.df_new.columns[:1] + [self.df_new.columns[-2]] + self.df_new.columns[2:13]) 
+
+
+        self.df_new = df_new.select([df_new.columns[-1]] + df_new.columns[:1] + [df_new.columns[-3]] + df_new.columns[1:13] + df_new.columns[14:15]) 
 
         self.writeto_db()
     
@@ -84,10 +88,13 @@ class Silvertransformation(Utils):
             self.Logger.info(e)
 
 
-obj=Silvertransformation()
-# print(obj.url)
-lst =['dbo.RAJESHEXPO','dbo.INFY','dbo.ATGL','dbo.JPPOWER','dbo.AREM','dbo.HDFCBANK','dbo.SURYODAY','dbo.SHYAMCENT']
-for item in lst:
-    obj.transform_tables(item)
+    def launchSilver(self):
+       result = list(map(self.transform_tables,self.list_ofTables))
 
+
+if __name__ == "__main__":
+    
+    obj=Silvertransformation()
+
+    obj.launchSilver()
 
